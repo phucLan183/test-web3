@@ -1,6 +1,8 @@
 import Web3 from 'web3'
 import { CONTRACT_ABI, ADDRESS_CONTRACT_BNB } from './contract'
 import { connectMongo, BusdCollection } from './mongodb';
+import dotenv from 'dotenv'
+dotenv.config()
 
 connectMongo()
 

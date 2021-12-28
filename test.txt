@@ -1,0 +1,76 @@
+import Web3 from 'web3'
+import { CONTRACT_ABI, ADDRESS_CONTRACT_BNB } from './contract'
+
+var web3 = new Web3('https://bsc-dataseed.binance.org/')
+
+if (web3) console.log('Connect to BSC mainnet');
+
+const main = async () => {
+  // Contract
+  const psContract = new web3.eth.Contract(CONTRACT_ABI, ADDRESS_CONTRACT_BNB)
+  // console.log(psContract);
+
+  // defaultAccount
+  // web3.eth.defaultAccount = '0xbE1b9A616E3aF4772eBECA11408691330911abAe'
+  // console.log(web3.eth.defaultAccount); || 0xbE1b9A616E3aF4772eBECA11408691330911abAe
+
+  // defaultBlock
+  // console.log(psContract.defaultBlock); || latest
+
+  // defaultHardfork
+  // console.log(psContract.defaultHardfork); || undefined
+
+  // defaultChain
+  // console.log(psContract.defaultChain); || undefined
+
+  // defaultCommon
+  // console.log(psContract.defaultCommon); || undefined
+
+
+  // transactionBlockTimeout
+  // console.log(psContract.transactionBlockTimeout); || 50
+
+  // transactionPollingTimeout
+  // console.log(psContract.transactionPollingTimeout); || 750
+
+  // handleRevert
+  // console.log(psContract.handleRevert); || false
+
+  // Options
+  // console.log(psContract.options);
+
+  // clone
+  // console.log(psContract.clone());
+
+  // deploy
+  // console.log(psContract.deploy({
+  //   data: ,
+  //   arguments: ,
+  // }));
+
+  // methods
+  // console.log(psContract.methods.);
+
+
+  // const AllEvents = await psContract.getPastEvents('allEvents', {
+  //   fromBlock: 'earliest',
+  //   toBlock: 'latest'
+  // })
+  // console.log(AllEvents);
+
+  // Transaction
+  // const Transaction = await web3.eth.getTransaction('0x9a832c44873042089281fa8088056cf519b11548889ca4e942f78fe89d85a9ef')
+  // console.log(Transaction);
+
+  // const Mining = await web3.eth.isMining()
+  // console.log(Mining) || false
+
+  // const Account = await web3.eth.getAccounts()
+  // console.log(Account); || []
+
+  const BlockNumber = await web3.eth.getBlockNumber()
+  console.log(BlockNumber);
+
+}
+main()
+

@@ -4,13 +4,20 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "web3": "ts-node index.ts"
+    "web3": "ts-node index.ts",
+    "dev": "ts-node index.ts",
+    "start": "node dist/index.js",
+    "test": "ts-node test.ts",
+    "build": "rm -rf dist && tsc",
+    "dep": "docker-compose -f docker-compose.yml up --build -d",
+    "dep:log": "docker-compose -f docker-compose.yml up --build"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bignumber.js": "^9.0.2",
+    "dotenv": "^10.0.0",
     "mongodb": "^4.2.2",
     "web3": "^1.6.1"
   }

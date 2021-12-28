@@ -1,0 +1,12 @@
+version: '3.7'
+
+services:
+  phuclan-test-web3:
+    container_name: phuclan-test-web3
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '$PORT:$PORT'
+    env_file: .env
+    restart: always

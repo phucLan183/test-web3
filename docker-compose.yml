@@ -1,8 +1,8 @@
 version: '3.7'
 
 services:
-  phuclan-test-web3:
-    container_name: phuclan-test-web3
+  web3-test:
+    container_name: web3-test
     build:
       context: .
       dockerfile: Dockerfile

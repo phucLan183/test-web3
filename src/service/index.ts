@@ -26,7 +26,7 @@ export const saveDatabase = async (startBlock: number) => {
         })
       }
     }
-    startBlock >= latestBlock ? startBlock == latestBlock : startBlock == stepBlock
+    startBlock >= latestBlock ? startBlock = latestBlock : startBlock = stepBlock
     setTimeout(() => {
       saveDatabase(startBlock)
     }, 5000)

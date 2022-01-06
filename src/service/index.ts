@@ -32,6 +32,8 @@ export const saveDatabase = async (startBlock: number) => {
     }, 5000)
   } catch (error) {
     console.log(error);
-    throw error
+    setTimeout(() => {
+      saveDatabase(startBlock)
+    }, 5000)
   }
 }

@@ -4,7 +4,7 @@ import { prlContract, web3 } from '../web3'
 
 export const saveDatabase = async (startBlock: number) => {
   try {
-    const stepBlock = startBlock + 4000
+    const stepBlock = startBlock + 1000
     const latestBlock = await web3.eth.getBlockNumber()
     const transferEvent = await prlContract.getPastEvents('Transfer', {
       fromBlock: startBlock,
@@ -32,5 +32,6 @@ export const saveDatabase = async (startBlock: number) => {
     }, 5000)
   } catch (error) {
     console.log(error);
+    throw error
   }
 }

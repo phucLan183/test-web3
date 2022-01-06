@@ -1,33 +1,32 @@
-import { BusdCollection } from '../database/mongodb';
+import { PrlCollection } from '../database/mongodb';
 import { Decimal128 } from 'mongodb';
-import { bnbContract, web3 } from '../web3'
-import { BigNumber } from 'bignumber.js';
+import { prlContract, web3 } from '../web3'
 
 export const saveDatabase = async (startBlock: number) => {
   try {
     const stepBlock = startBlock + 4000
-    const transferEvent = await bnbContract.getPastEvents('Transfer', {
+    const latestBlock = await web3.eth.getBlockNumber()
+    const transferEvent = await prlContract.getPastEvents('Transfer', {
       fromBlock: startBlock,
       toBlock: stepBlock
     })
-    // console.log({ transferEvent: transferEvent.length, startBlock: startBlock, toBlock: stepBlock });
+
+    console.log({ transferEvent: transferEvent.length, startBlock: startBlock, toBlock: stepBlock });
     if (transferEvent.length > 0) {
       for (const event of transferEvent) {
-        try {
-          const dataBlock = await web3.eth.getBlock(event.blockNumber)
-          await BusdCollection.insertOne({
-            blockNumber: event.blockNumber,
-            addressFrom: event.returnValues.from,
-            addressTo: event.returnValues.to,
-            value: new Decimal128(event.returnValues.value),
-            timestamp: dataBlock.timestamp
-          })
-        } catch (error) {
-          console.log(error);
-        }
+        const dataBlock = await web3.eth.getBlock(event.blockNumber)
+        await PrlCollection.insertOne({
+          blockNumber: event.blockNumber,
+          address: {
+            from: event.returnValues.from,
+            to: event.returnValues.to
+          },
+          balance: new Decimal128(event.returnValues.value),
+          timestamp: dataBlock.timestamp
+        })
       }
     }
-    startBlock = stepBlock
+    startBlock >= latestBlock ? startBlock == latestBlock : startBlock == stepBlock
     setTimeout(() => {
       saveDatabase(startBlock)
     }, 5000)

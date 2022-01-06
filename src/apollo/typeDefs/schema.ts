@@ -1,15 +1,32 @@
 import { gql } from 'apollo-server'
 
 export const typeDefs = gql`
+  type CurrentBalanceParallel {
+    prlBalance: String
+  }
+
+  type Address {
+    from: String
+    to: String
+  }
+
   type Block {
-    _id: String
-    addressFrom: String
-    addressTo: String
-    value: String
+    blockNumber: Float
+    address: Address
+    balance: String
     timestamp: Float
   }
 
+  type DetailsHistoryContract {
+    blockIn: [Block]
+    blockOut: [Block]
+    totalIn: Int
+    totalOut: Int
+    totalBalanceInOut: String
+  }
+
   type Query {
-    getGreatestValueBlock: [Block] 
+    getBalanceOfParallel: CurrentBalanceParallel
+    getHistoryContract(address: String!, limit: Int!): DetailsHistoryContract
   }
 `

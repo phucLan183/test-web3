@@ -1,14 +1,14 @@
 import { MongoClient } from "mongodb"
-const dbName = 'lan_backend';
 
 let mongoClient: MongoClient
 
-export let BusdCollection: any
+export let PrlCollection: any
 
 export const connectMongo = async (MONGO_URI: any) => {
   try {
     mongoClient = new MongoClient(MONGO_URI);
     await mongoClient.connect();
+
     mongoClient.on('error', async (e) => {
       try {
         await mongoClient.close()
@@ -28,9 +28,10 @@ export const connectMongo = async (MONGO_URI: any) => {
         throw e
       }
     })
-    const db = await mongoClient.db(dbName)
 
-    BusdCollection = await db.collection('busd')
+    const db = mongoClient.db()
+
+    PrlCollection = db.collection('parallel')
 
     console.log('💾 Connected successfully to mongodb');
   } catch (error) {

@@ -18,8 +18,8 @@ export const saveDatabase = async (startBlock: number) => {
         await PrlCollection.insertOne({
           blockNumber: event.blockNumber,
           address: {
-            from: event.returnValues.from,
-            to: event.returnValues.to
+            from: event.returnValues.from.toLowerCase(),  
+            to: event.returnValues.to.toLowerCase()
           },
           balance: new Decimal128(event.returnValues.value),
           timestamp: dataBlock.timestamp

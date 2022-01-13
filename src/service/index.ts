@@ -1,7 +1,6 @@
 import { PrlCollection } from '../database/mongodb';
 import { Decimal128 } from 'mongodb';
 import { prlContract, web3 } from '../web3'
-import BN from 'bn.js'
 
 export const saveDatabase = async (startBlock: number) => {
   try {
@@ -19,7 +18,6 @@ export const saveDatabase = async (startBlock: number) => {
     if (transferEvent.length > 0) {
       for (const event of transferEvent) {
         const dataBlock = await web3.eth.getBlock(event.blockNumber)
-        const formatBalance = web3.utils.fromWei(new BN(event.returnValues.value), "ether")
         
         await PrlCollection.insertOne({
           blockNumber: event.blockNumber,
@@ -27,7 +25,7 @@ export const saveDatabase = async (startBlock: number) => {
             from: event.returnValues.from.toLowerCase(),
             to: event.returnValues.to.toLowerCase()
           },
-          balance: formatBalance,
+          balance: new Decimal128(event.returnValues.value),
           timestamp: dataBlock.timestamp
         })
       }

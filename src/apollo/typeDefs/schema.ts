@@ -18,20 +18,20 @@ export const typeDefs = gql`
   }
 
   type HistoryTransfers {
+    totalIn: Int
+    totalOut: Int
     blockIn: [Block]
     blockOut: [Block]
   }
 
   type TotalTransfer {
-    in: Int
-    out: Int
-    inAndOut: String
+    totalInAndOut: String
     parallelBalance: String
   }
 
   type Query {
     getBalanceOfParallel: CurrentBalanceParallel
     getHistoryTransfers(address: String!, limit: Int!): HistoryTransfers
-    getTotalBalanceTransfer(address: String!, limit: Int!): TotalTransfer
+    getTotalBalanceTransfer(address: String!): TotalTransfer
   }
 `

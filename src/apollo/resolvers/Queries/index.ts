@@ -1,5 +1,5 @@
 import { PrlCollection } from '../../../database/mongodb'
-import { getBalancePrl } from '../../../web3/currency'
+import { getBalancePrl, formatBalance } from '../../../web3/currency'
 import { ADDRESS_CONTRACT_PRL } from '../../../config'
 import BigNumber from 'bn.js'
 
@@ -22,8 +22,10 @@ export const getHistoryTransfers = async (parent: any, args: any) => {
       "address.from": address.toLowerCase()
     }).sort({ _id: -1 }).toArray()
     return {
-      blockIn: dataBlockIn.slice(0, limit),
-      blockOut: dataBlockOut.slice(0, limit),
+      totalIn: dataBlockIn.length,
+      totalOut: dataBlockOut.length,
+      blockIn: FormatDataBlock(dataBlockIn, limit),
+      blockOut: FormatDataBlock(dataBlockOut, limit),
     }
   } catch (error) {
     throw error
@@ -43,7 +45,7 @@ const FormatDataBlock = (dataBlock: any, limit: number) => {
       from: item.address.from,
       to: item.address.to
     },
-    balance: item.balance.toString(),
+    balance: formatBalance(item.balance.toString()),
     timestamp: item.timestamp
   })).slice(0, limit)
 }
@@ -53,17 +55,15 @@ export const getTotalBalanceTransfer = async (parent: any, args: any) => {
     const { address } = args
     const dataBlockIn = await PrlCollection.find({
       "address.to": address.toLowerCase()
-    }).sort({ _id: -1 }).toArray()
+    }).toArray()
     const dataBlockOut = await PrlCollection.find({
       "address.from": address.toLowerCase()
-    }).sort({ _id: -1 }).toArray()
+    }).toArray()
     const prlBalance = await getBalancePrl(address)
     const totalBalanceInOut = new BigNumber(TotalBalance(dataBlockOut)).add(new BigNumber(TotalBalance(dataBlockIn)))
     return {
-      parallelBalance: prlBalance,
-      totalIn: dataBlockIn.length,
-      totalOut: dataBlockOut.length,
-      totalBalanceInOut: totalBalanceInOut.toString()
+      totalInAndOut: formatBalance(totalBalanceInOut.toString()),
+      parallelBalance: prlBalance
     }
   } catch (error) {
     throw error

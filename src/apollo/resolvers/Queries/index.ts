@@ -12,7 +12,7 @@ export const getBalanceOfParallel = async (parent: any, args: any) => {
   }
 }
 
-export const getHistoryContract = async (parent: any, args: any) => {
+export const getHistoryTransfers = async (parent: any, args: any) => {
   try {
     const { address, limit } = args
     const dataBlockIn = await PrlCollection.find({
@@ -21,13 +21,9 @@ export const getHistoryContract = async (parent: any, args: any) => {
     const dataBlockOut = await PrlCollection.find({
       "address.from": address.toLowerCase()
     }).sort({ _id: -1 }).toArray()
-    const totalBalanceInOut = new BigNumber(TotalBalance(dataBlockOut)).add(new BigNumber(TotalBalance(dataBlockIn)))
     return {
-      blockIn: FormatDataBlock(dataBlockIn, limit),
-      blockOut: FormatDataBlock(dataBlockOut, limit),
-      totalIn: dataBlockIn.length,
-      totalOut: dataBlockOut.length,
-      totalBalanceInOut: totalBalanceInOut.toString()
+      blockIn: dataBlockIn.slice(0, limit),
+      blockOut: dataBlockOut.slice(0, limit),
     }
   } catch (error) {
     throw error
@@ -50,4 +46,26 @@ const FormatDataBlock = (dataBlock: any, limit: number) => {
     balance: item.balance.toString(),
     timestamp: item.timestamp
   })).slice(0, limit)
+}
+
+export const getTotalBalanceTransfer = async (parent: any, args: any) => {
+  try {
+    const { address } = args
+    const dataBlockIn = await PrlCollection.find({
+      "address.to": address.toLowerCase()
+    }).sort({ _id: -1 }).toArray()
+    const dataBlockOut = await PrlCollection.find({
+      "address.from": address.toLowerCase()
+    }).sort({ _id: -1 }).toArray()
+    const prlBalance = await getBalancePrl(address)
+    const totalBalanceInOut = new BigNumber(TotalBalance(dataBlockOut)).add(new BigNumber(TotalBalance(dataBlockIn)))
+    return {
+      parallelBalance: prlBalance,
+      totalIn: dataBlockIn.length,
+      totalOut: dataBlockOut.length,
+      totalBalanceInOut: totalBalanceInOut.toString()
+    }
+  } catch (error) {
+    throw error
+  }
 }

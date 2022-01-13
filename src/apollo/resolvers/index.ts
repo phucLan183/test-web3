@@ -1,8 +1,9 @@
-import { getBalanceOfParallel, getHistoryContract } from '../resolvers/Queries'
+import { getBalanceOfParallel, getHistoryTransfers, getTotalBalanceTransfer } from '../resolvers/Queries'
 
 export const resolvers = {
   Query: {
     getBalanceOfParallel,
-    getHistoryContract
+    getHistoryTransfers,
+    getTotalBalanceTransfer
   },
 }

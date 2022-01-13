@@ -17,16 +17,21 @@ export const typeDefs = gql`
     timestamp: Float
   }
 
-  type DetailsHistoryContract {
+  type HistoryTransfers {
     blockIn: [Block]
     blockOut: [Block]
-    totalIn: Int
-    totalOut: Int
-    totalBalanceInOut: String
+  }
+
+  type TotalTransfer {
+    in: Int
+    out: Int
+    inAndOut: String
+    parallelBalance: String
   }
 
   type Query {
     getBalanceOfParallel: CurrentBalanceParallel
-    getHistoryContract(address: String!, limit: Int!): DetailsHistoryContract
+    getHistoryTransfers(address: String!, limit: Int!): HistoryTransfers
+    getTotalBalanceTransfer(address: String!, limit: Int!): TotalTransfer
   }
 `

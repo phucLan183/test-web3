@@ -34,21 +34,20 @@ const getParallelBalanceTransfer = async (options: any) => {
   const session = mongoClient.startSession()
   try {
     const transferEvent = await prlContract.getPastEvents('Transfer', options)
-    console.log(transferEvent.length);
 
     if (transferEvent.length > 0) {
       for (const event of transferEvent) {
         const dataBlock = await web3.eth.getBlock(event.blockNumber)
         await session.withTransaction(async () => {
-          const dataParallel = await PrlCollection.findOne({ transactionHash: event.transactionHash })
+          const dataParallel = await PrlCollection.findOne({ transferId: event["id"] })
           if (!dataParallel) {
             await PrlCollection.insertOne({
               blockNumber: event.blockNumber,
+              transferId: event["id"],
               address: {
                 from: event.returnValues.from.toLowerCase(),
                 to: event.returnValues.to.toLowerCase()
               },
-              transactionHash: event.transactionHash,
               balance: new Decimal128(event.returnValues.value),
               timestamp: dataBlock.timestamp
             }, { session })

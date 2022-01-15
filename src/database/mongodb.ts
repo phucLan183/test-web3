@@ -1,6 +1,6 @@
 import { MongoClient } from "mongodb"
 
-let mongoClient: MongoClient
+export let mongoClient: MongoClient
 
 export let PrlCollection: any
 

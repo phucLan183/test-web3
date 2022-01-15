@@ -1,44 +1,69 @@
-import { PrlCollection } from '../database/mongodb';
+import { PrlCollection, mongoClient } from '../database/mongodb';
 import { Decimal128 } from 'mongodb';
 import { prlContract, web3 } from '../web3'
 import { STEPBLOCK } from '../config'
 
-export const saveDatabase = async (startBlock: number) => {
+export const intervalConsume = async (startBlock: number) => {
   try {
     const latestBlock = await web3.eth.getBlockNumber()
-    const toBlock = startBlock + STEPBLOCK + 1
-    let options = { fromBlock: startBlock, toBlock }
-
     if (startBlock >= latestBlock) startBlock = latestBlock
 
-    // if (toBlock >= latestBlock) options.toBlock = latestBlock + 1
+    let options = getPastEventsOptions(startBlock, latestBlock)
 
+    console.table({ startBlock: options.fromBlock, toBlock: options.toBlock, latestBlock: latestBlock });
+
+    await getParallelBalanceTransfer(options)
+
+    startBlock = options.toBlock
+  } catch (error) {
+    throw error
+  } finally {
+    setTimeout(() => {
+      intervalConsume(startBlock)
+    }, 3000)
+  }
+}
+
+const getPastEventsOptions = (startBlock: number, latestBlock: number) => {
+  const currentBlockWithStepBlock = startBlock + STEPBLOCK
+  let toBlock = currentBlockWithStepBlock >= latestBlock ? latestBlock : currentBlockWithStepBlock
+  return { fromBlock: startBlock, toBlock }
+}
+
+const getParallelBalanceTransfer = async (options: any) => {
+  const session = mongoClient.startSession()
+  try {
     const transferEvent = await prlContract.getPastEvents('Transfer', options)
-    console.table({ transferEvent: transferEvent.length, startBlock: startBlock, toBlock: toBlock, latestBlock: latestBlock });
-    
+    console.log(transferEvent.length);
+
     if (transferEvent.length > 0) {
       for (const event of transferEvent) {
         const dataBlock = await web3.eth.getBlock(event.blockNumber)
-
-        await PrlCollection.insertOne({
-          blockNumber: event.blockNumber,
-          address: {
-            from: event.returnValues.from.toLowerCase(),
-            to: event.returnValues.to.toLowerCase()
-          },
-          balance: new Decimal128(event.returnValues.value),
-          timestamp: dataBlock.timestamp
+        await session.withTransaction(async () => {
+          const dataParallel = await PrlCollection.findOne({ logIndex: event.logIndex })
+          if (!dataParallel) {
+            await PrlCollection.insertOne({
+              blockNumber: event.blockNumber,
+              address: {
+                from: event.returnValues.from.toLowerCase(),
+                to: event.returnValues.to.toLowerCase()
+              },
+              logIndex: event.logIndex,
+              transactionHash: event.transactionHash,
+              balance: new Decimal128(event.returnValues.value),
+              timestamp: dataBlock.timestamp
+            }, { session })
+          }
         })
       }
     }
-    latestBlock > toBlock ? startBlock = toBlock + 1 : startBlock = toBlock - 1000 + 1
   } catch (error) {
-    setTimeout(() => {
-      saveDatabase(startBlock)
-    }, 3000)
+    console.log(error)
+    if (session.inTransaction()) {
+      await session.abortTransaction()
+    }
+    throw error;
   } finally {
-    setTimeout(() => {
-      saveDatabase(startBlock)
-    }, 3000)
+    await session.endSession()
   }
 }

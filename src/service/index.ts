@@ -40,7 +40,7 @@ const getParallelBalanceTransfer = async (options: any) => {
       for (const event of transferEvent) {
         const dataBlock = await web3.eth.getBlock(event.blockNumber)
         await session.withTransaction(async () => {
-          const dataParallel = await PrlCollection.findOne({ logIndex: event.logIndex })
+          const dataParallel = await PrlCollection.findOne({ transactionHash: event.transactionHash })
           if (!dataParallel) {
             await PrlCollection.insertOne({
               blockNumber: event.blockNumber,
@@ -48,7 +48,6 @@ const getParallelBalanceTransfer = async (options: any) => {
                 from: event.returnValues.from.toLowerCase(),
                 to: event.returnValues.to.toLowerCase()
               },
-              logIndex: event.logIndex,
               transactionHash: event.transactionHash,
               balance: new Decimal128(event.returnValues.value),
               timestamp: dataBlock.timestamp
